@@ -1,5 +1,11 @@
+import { Markdown } from "./Markdown";
+
 const App = () => {
-  return <div>App</div>;
+  return (
+    <div>
+      <Markdown />
+    </div>
+  );
 };
 
 export default App;
