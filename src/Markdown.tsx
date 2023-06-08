@@ -2,11 +2,16 @@ import SimpleMdeReact from "react-simplemde-editor";
 import { useCallback, useState, useMemo, useEffect } from "react";
 import "easymde/dist/easymde.min.css";
 
-export const Markdown = () => {
-  const [value, setValue] = useState("Initial value");
+interface MarkdownProps {
+  value: string;
+  onChange: (value: string) => void;
+}
 
-  const onChange = useCallback((value: string) => {
-    setValue(value);
+export const Markdown = ({ value, onChange }: MarkdownProps) => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  const handleChange = useCallback((value: string) => {
+    onChange(value);
   }, []);
 
   useEffect(() => {
@@ -17,7 +22,9 @@ export const Markdown = () => {
 
       if (sideBySide) {
         sideBySide.click();
+        sideBySide.style.display = "none";
       }
+      setIsLoading(false);
     };
 
     window.addEventListener("load", handleLoad);
@@ -42,15 +49,20 @@ export const Markdown = () => {
         "image",
         "table",
         "horizontal-rule",
-        "preview",
         "side-by-side",
         "fullscreen",
         "guide",
       ] as any[],
-      defaultTab: "side-by-side",
     }),
     []
   );
 
-  return <SimpleMdeReact options={options} value={value} onChange={onChange} />;
+  return (
+    <>
+      <div style={{ display: isLoading ? "block" : "none" }}>Loading...</div>
+      <div style={{ display: isLoading ? "none" : "block" }}>
+        <SimpleMdeReact options={options} value={value} onChange={handleChange} />
+      </div>
+    </>
+  );
 };
