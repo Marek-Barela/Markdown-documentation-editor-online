@@ -114,6 +114,21 @@ app.put("/files/:fileName", (req, res) => {
   });
 });
 
+app.delete("/files/:fileName", (req, res) => {
+  const fileName = req.params.fileName;
+  const filePath = path.join(directoryPath, fileName);
+
+  fs.unlink(filePath, err => {
+    if (err) {
+      console.error("Error removing file:", err);
+      res.status(500).send("Internal server error");
+      return;
+    }
+
+    res.send("File removed successfully");
+  });
+});
+
 app.get("*", (_, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
 });

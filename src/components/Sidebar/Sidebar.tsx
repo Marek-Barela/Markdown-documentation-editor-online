@@ -3,9 +3,11 @@ import { ReactComponent as Document } from "src/components/SVG/Document.svg";
 import { ReactComponent as AddDocument } from "src/components/SVG/AddDocument.svg";
 import { ReactComponent as SaveDocument } from "src/components/SVG/SaveDocument.svg";
 import { ReactComponent as EditIcon } from "src/components/SVG/EditIcon.svg";
+import { ReactComponent as TrashIcon } from "src/components/SVG/TrashIcon.svg";
 import { File } from "src/types/file";
 import { useCreateFileMutation } from "src/api/mutations/useCreateFileMutation";
 import { useUpdateFileNameMutation } from "src/api/mutations/useUpdateFileNameMutation";
+import { useDeleteFileMutation } from "src/api/mutations/useDeleteFileMutation";
 import { useState } from "react";
 
 interface SidebarProps {
@@ -22,6 +24,7 @@ export const Sidebar = ({
   const { data, refetch } = useFilesQuery();
   const { mutate } = useCreateFileMutation();
   const { mutate: updateFileName } = useUpdateFileNameMutation();
+  const { mutate: deleteFile } = useDeleteFileMutation();
   const [hoveredElement, setHoveredElement] = useState<null | string>(null);
 
   const handleCreateNewFileClick = () => {
@@ -53,6 +56,24 @@ export const Sidebar = ({
     if (name) {
       updateFileName(
         { fileName: fileName, newFileName: name },
+        {
+          onSuccess: () => {
+            refetch();
+          },
+        }
+      );
+    }
+  };
+
+  const handleDeleteFileClick = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    fileName: string
+  ) => {
+    e.stopPropagation();
+    const shouldDelete = confirm("Are you sure you want to delete this file?");
+    if (shouldDelete) {
+      deleteFile(
+        { fileName },
         {
           onSuccess: () => {
             refetch();
@@ -99,16 +120,23 @@ export const Sidebar = ({
               <div
                 className={`${
                   currentlyActiveFile === file.name ? "bg-white/10 text-white" : ""
-                } group-hover:bg-white/10 w-full group-active:scale-95 self-stretch px-2 rounded flex items-center justify-between space-x-2 transition-all duration-200 dark:group-hover:text-white dark:hover:text-white text-sm`}>
+                } group-hover:bg-white/10 w-full self-stretch px-2 rounded flex items-center justify-between space-x-2 transition-all duration-200 dark:group-hover:text-white dark:hover:text-white text-sm`}>
                 <div className="flex justify-center items-center gap-3">
                   <Document width={24} />
                   <span className="font-QuicksandMedium">{file.name}</span>
                 </div>
-                <button
-                  className={`${hoveredElement === file.id ? "" : "hidden"} p-2`}
-                  onClick={e => handleEditFileNameClick(e, file.name)}>
-                  <EditIcon width={16} />
-                </button>
+                <div>
+                  <button
+                    className={`${hoveredElement === file.id ? "" : "hidden"} p-2`}
+                    onClick={e => handleEditFileNameClick(e, file.name)}>
+                    <EditIcon width={16} />
+                  </button>
+                  <button
+                    className={`${hoveredElement === file.id ? "" : "hidden"} p-2`}
+                    onClick={e => handleDeleteFileClick(e, file.name)}>
+                    <TrashIcon width={16} />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
