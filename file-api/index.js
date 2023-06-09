@@ -43,6 +43,22 @@ app.get("/files/:fileName", (req, res) => {
   });
 });
 
+app.post("/files/:fileName", (req, res) => {
+  const fileName = req.params.fileName;
+  const filePath = path.join(directoryPath, fileName);
+  const fileContent = req.body.content;
+
+  fs.writeFile(filePath, fileContent, "utf8", err => {
+    if (err) {
+      console.error("Error creating file:", err);
+      res.status(500).send("Internal server error");
+      return;
+    }
+
+    res.send("File created successfully");
+  });
+});
+
 app.get("*", (_, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
