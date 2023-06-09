@@ -2,8 +2,11 @@ import useFilesQuery from "src/api/queries/useFilesQuery";
 import { ReactComponent as Document } from "src/components/SVG/Document.svg";
 import { ReactComponent as AddDocument } from "src/components/SVG/AddDocument.svg";
 import { ReactComponent as SaveDocument } from "src/components/SVG/SaveDocument.svg";
+import { ReactComponent as EditIcon } from "src/components/SVG/EditIcon.svg";
 import { File } from "src/types/file";
 import { useCreateFileMutation } from "src/api/mutations/useCreateFileMutation";
+import { useUpdateFileNameMutation } from "src/api/mutations/useUpdateFileNameMutation";
+import { useState } from "react";
 
 interface SidebarProps {
   onNavigationClick: (fileName: string) => void;
@@ -18,6 +21,8 @@ export const Sidebar = ({
 }: SidebarProps) => {
   const { data, refetch } = useFilesQuery();
   const { mutate } = useCreateFileMutation();
+  const { mutate: updateFileName } = useUpdateFileNameMutation();
+  const [hoveredElement, setHoveredElement] = useState<null | string>(null);
 
   const handleCreateNewFileClick = () => {
     mutate(
@@ -28,6 +33,33 @@ export const Sidebar = ({
         },
       }
     );
+  };
+
+  const handleMouseEnter = (id: string) => {
+    setHoveredElement(id);
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredElement(null);
+  };
+
+  const handleEditFileNameClick = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    fileName: string
+  ) => {
+    e.stopPropagation();
+    const name = prompt("Enter new file name");
+
+    if (name) {
+      updateFileName(
+        { fileName: fileName, newFileName: name },
+        {
+          onSuccess: () => {
+            refetch();
+          },
+        }
+      );
+    }
   };
 
   return (
@@ -55,7 +87,9 @@ export const Sidebar = ({
             <div
               key={file.id}
               className="w-full flex items-center gap-x-1.5 group select-none cursor-pointer"
-              onClick={() => onNavigationClick(file.name)}>
+              onClick={() => onNavigationClick(file.name)}
+              onMouseEnter={() => handleMouseEnter(file.id)}
+              onMouseLeave={handleMouseLeave}>
               <div className="w-1 rounded-xl h-8 bg-transparent transition-colors duration-200 relative overflow-hidden">
                 <div
                   className={`absolute top-0 left-0 w-full h-[102%] ${
@@ -65,9 +99,16 @@ export const Sidebar = ({
               <div
                 className={`${
                   currentlyActiveFile === file.name ? "bg-white/10 text-white" : ""
-                } group-hover:bg-white/10 w-full group-active:scale-95 self-stretch pl-2 rounded flex items-center space-x-2 transition-all duration-200 dark:group-hover:text-white dark:hover:text-white text-sm`}>
-                <Document width={24} />
-                <span className="font-QuicksandMedium">{file.name}</span>
+                } group-hover:bg-white/10 w-full group-active:scale-95 self-stretch px-2 rounded flex items-center justify-between space-x-2 transition-all duration-200 dark:group-hover:text-white dark:hover:text-white text-sm`}>
+                <div className="flex justify-center items-center gap-3">
+                  <Document width={24} />
+                  <span className="font-QuicksandMedium">{file.name}</span>
+                </div>
+                <button
+                  className={`${hoveredElement === file.id ? "" : "hidden"} p-2`}
+                  onClick={e => handleEditFileNameClick(e, file.name)}>
+                  <EditIcon width={16} />
+                </button>
               </div>
             </div>
           ))}

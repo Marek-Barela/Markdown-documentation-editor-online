@@ -21,10 +21,12 @@ app.get("/files", (_, res) => {
       return;
     }
 
-    const fileData = files.map(fileName => ({
-      id: uuidv4(),
-      name: fileName,
-    }));
+    const fileData = files
+      .map(fileName => ({
+        id: uuidv4(),
+        name: fileName,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name, "en", { sensitivity: "case" }));
 
     res.json(fileData);
   });
@@ -73,29 +75,42 @@ app.post("/files/:fileName", (req, res) => {
   });
 });
 
-app.put("/files/:fileName", (req, res) => {
-  const currentFileName = req.params.fileName;
-  const newFileName = req.body.newFileName;
-  const currentFilePath = path.join(directoryPath, currentFileName);
-  const newFilePath = path.join(directoryPath, newFileName);
+app.patch("/files/:fileName", (req, res) => {
+  const fileName = req.params.fileName;
+  const filePath = path.join(directoryPath, fileName);
   const content = req.body.content;
 
-  fs.rename(currentFilePath, newFilePath, err => {
+  fs.writeFile(filePath, content, "utf8", err => {
     if (err) {
-      console.error("Error renaming file:", err);
+      console.error("Error saving file:", err);
       res.status(500).send("Internal server error");
       return;
     }
 
-    fs.writeFile(newFilePath, content, "utf8", err => {
-      if (err) {
-        console.error("Error modifying file:", err);
-        res.status(500).send("Internal server error");
-        return;
-      }
+    res.send("File saved successfully");
+  });
+});
 
-      res.send("File modified successfully");
-    });
+app.put("/files/:fileName", (req, res) => {
+  const fileName = req.params.fileName;
+  let newFileName = req.body.newFileName;
+
+  const extension = path.extname(newFileName);
+  if (extension !== ".md") {
+    newFileName = newFileName + ".md";
+  }
+
+  const filePath = path.join(directoryPath, fileName);
+  const newFilePath = path.join(directoryPath, newFileName);
+
+  fs.rename(filePath, newFilePath, err => {
+    if (err) {
+      console.error("Error updating file name:", err);
+      res.status(500).send("Internal server error");
+      return;
+    }
+
+    res.send("File name updated successfully");
   });
 });
 

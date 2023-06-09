@@ -3,16 +3,11 @@ import axios from "axios";
 
 interface UpdateFileMutationVariables {
   fileName: string;
-  newFileName: string;
   content: string;
 }
 
-const updateFile = async ({
-  fileName,
-  newFileName,
-  content,
-}: UpdateFileMutationVariables) => {
-  const response = await axios.put(`/files/${fileName}`, { newFileName, content });
+const updateFile = async ({ fileName, content }: UpdateFileMutationVariables) => {
+  const response = await axios.patch(`/files/${fileName}`, { content });
 
   return response.data;
 };

@@ -29,10 +29,7 @@ const App = () => {
   };
 
   const handleSaveFileClick = () => {
-    mutate(
-      { fileName, newFileName: fileName, content: value },
-      { onSuccess: () => refetch() }
-    );
+    mutate({ fileName, content: value }, { onSuccess: () => refetch() });
   };
 
   return (
