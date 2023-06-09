@@ -9,7 +9,14 @@ body {
 .grid {
   display: grid;
   grid-template-columns: 300px 1fr;
-  grid-gap: 10px;
+}
+
+.sidebar {
+  background-color: #242424;
+  color: #ffffff;
+  position: fixed;
+  min-height: 100vh;
+  width: 300px;
 }
 
 .CodeMirror {

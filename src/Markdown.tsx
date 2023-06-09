@@ -1,5 +1,5 @@
 import SimpleMdeReact from "react-simplemde-editor";
-import { useCallback, useState, useMemo, useEffect } from "react";
+import { useCallback, useMemo } from "react";
 import "easymde/dist/easymde.min.css";
 
 interface MarkdownProps {
