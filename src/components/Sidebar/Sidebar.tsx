@@ -1,20 +1,53 @@
 import useFilesQuery from "src/api/queries/useFilesQuery";
-import { ReactComponent as Folder } from "src/components/SVG/Folder.svg";
 import { ReactComponent as Document } from "src/components/SVG/Document.svg";
+import { ReactComponent as AddDocument } from "src/components/SVG/AddDocument.svg";
+import { ReactComponent as SaveDocument } from "src/components/SVG/SaveDocument.svg";
 import { File } from "src/types/file";
+import { useCreateFileMutation } from "src/api/mutations/useCreateFileMutation";
 
 interface SidebarProps {
   onNavigationClick: (fileName: string) => void;
+  saveFile: () => void;
   currentlyActiveFile: string;
 }
 
-export const Sidebar = ({ onNavigationClick, currentlyActiveFile }: SidebarProps) => {
-  const { data } = useFilesQuery();
+export const Sidebar = ({
+  onNavigationClick,
+  saveFile,
+  currentlyActiveFile,
+}: SidebarProps) => {
+  const { data, refetch } = useFilesQuery();
+  const { mutate } = useCreateFileMutation();
+
+  const handleCreateNewFileClick = () => {
+    mutate(
+      { fileName: "Untitled.md" },
+      {
+        onSuccess: () => {
+          refetch();
+        },
+      }
+    );
+  };
 
   return (
     <>
       <aside className="w-[300px] bg-[#242424] min-h-full h-screen flex flex-col items-center pt-5 pb-2 space-y-7 fixed">
-        <div className="w-full pr-3 flex flex-col gap-y-1 text-gray-500 fill-gray-500 text-sm">
+        <div className="w-full flex flex-col gap-y-1 text-gray-500 fill-gray-500 text-sm">
+          <div className="font-QuicksandMedium m-3 mx-4 flex gap-2 justify-between">
+            <button
+              className="flex p-3 items-center gap-3 transition-colors duration-200 text-white cursor-pointer text-sm rounded-md border border-white/20 hover:bg-gray-500/10 h-11 flex-shrink-0 flex-grow"
+              title="Create new file"
+              onClick={handleCreateNewFileClick}>
+              <AddDocument width={16} /> New file
+            </button>
+            <button
+              className="flex p-3 gap-3 transition-colors duration-200 text-white cursor-pointer text-sm rounded-md border border-white/20 hover:bg-gray-500/10 h-11 w-11 flex-shrink-0 items-center justify-center"
+              title="Save file"
+              onClick={saveFile}>
+              <SaveDocument width={24} />
+            </button>
+          </div>
           <div className="font-QuicksandMedium pl-4 text-gray-400/60 text-xs text-[11px] uppercase">
             Menu
           </div>

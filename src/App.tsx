@@ -3,6 +3,7 @@ import { Markdown } from "./components/Markdown/Markdown";
 import { Sidebar } from "./components/Sidebar/Sidebar";
 import useFileQuery from "src/api/queries/useFileQuery";
 import useFilesQuery from "src/api/queries/useFilesQuery";
+import { useUpdateFileMutation } from "src/api/mutations/useUpdateFileMutation";
 
 const App = () => {
   const [value, setValue] = useState("");
@@ -12,6 +13,8 @@ const App = () => {
 
   const { data: file, refetch } = useFileQuery(fileName);
 
+  const { mutate } = useUpdateFileMutation();
+
   useEffect(() => {
     setFileName(files ? files[0].name : "");
   }, [files]);
@@ -20,14 +23,25 @@ const App = () => {
     setValue(file || "");
   }, [file]);
 
-  const handleClick = (fileName: string) => {
+  const handleChangeFileClick = (fileName: string) => {
     setFileName(fileName);
     refetch();
   };
 
+  const handleSaveFileClick = () => {
+    mutate(
+      { fileName, newFileName: fileName, content: value },
+      { onSuccess: () => refetch() }
+    );
+  };
+
   return (
     <div className="app-grid">
-      <Sidebar onNavigationClick={handleClick} currentlyActiveFile={fileName} />
+      <Sidebar
+        onNavigationClick={handleChangeFileClick}
+        saveFile={handleSaveFileClick}
+        currentlyActiveFile={fileName}
+      />
       <Markdown value={value} onChange={setValue} />
     </div>
   );

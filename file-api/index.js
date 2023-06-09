@@ -11,6 +11,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 app.use(express.static(path.join(__dirname, "dist")));
+app.use(express.json());
 
 app.get("/files", (_, res) => {
   fs.readdir(directoryPath, (err, files) => {
@@ -45,10 +46,23 @@ app.get("/files/:fileName", (req, res) => {
 
 app.post("/files/:fileName", (req, res) => {
   const fileName = req.params.fileName;
-  const filePath = path.join(directoryPath, fileName);
-  const fileContent = req.body.content;
+  let filePath = path.join(directoryPath, fileName);
 
-  fs.writeFile(filePath, fileContent, "utf8", err => {
+  if (fs.existsSync(filePath)) {
+    let suffix = 1;
+    let newFileName = fileName;
+
+    while (fs.existsSync(path.join(directoryPath, newFileName))) {
+      const fileExtension = path.extname(fileName);
+      const fileNameWithoutExtension = path.basename(fileName, fileExtension);
+      newFileName = `${fileNameWithoutExtension}_${suffix}${fileExtension}`;
+      suffix++;
+    }
+
+    filePath = path.join(directoryPath, newFileName);
+  }
+
+  fs.writeFile(filePath, "", "utf8", err => {
     if (err) {
       console.error("Error creating file:", err);
       res.status(500).send("Internal server error");
@@ -56,6 +70,32 @@ app.post("/files/:fileName", (req, res) => {
     }
 
     res.send("File created successfully");
+  });
+});
+
+app.put("/files/:fileName", (req, res) => {
+  const currentFileName = req.params.fileName;
+  const newFileName = req.body.newFileName;
+  const currentFilePath = path.join(directoryPath, currentFileName);
+  const newFilePath = path.join(directoryPath, newFileName);
+  const content = req.body.content;
+
+  fs.rename(currentFilePath, newFilePath, err => {
+    if (err) {
+      console.error("Error renaming file:", err);
+      res.status(500).send("Internal server error");
+      return;
+    }
+
+    fs.writeFile(newFilePath, content, "utf8", err => {
+      if (err) {
+        console.error("Error modifying file:", err);
+        res.status(500).send("Internal server error");
+        return;
+      }
+
+      res.send("File modified successfully");
+    });
   });
 });
 
