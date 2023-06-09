@@ -6,17 +6,28 @@ import useFilesQuery from "src/api/queries/useFilesQuery";
 
 const App = () => {
   const [value, setValue] = useState("");
+  const [fileName, setFileName] = useState("");
 
   const { data: files } = useFilesQuery();
-  const { data: file } = useFileQuery(files ? files[2].name : "");
+
+  const { data: file, refetch } = useFileQuery(fileName);
+
+  useEffect(() => {
+    setFileName(files ? files[0].name : "");
+  }, [files]);
 
   useEffect(() => {
     setValue(file || "");
   }, [file]);
 
+  const handleClick = (fileName: string) => {
+    setFileName(fileName);
+    refetch();
+  };
+
   return (
     <div className="app-grid">
-      <Sidebar />
+      <Sidebar onNavigationClick={handleClick} />
       <Markdown value={value} onChange={setValue} />
     </div>
   );
