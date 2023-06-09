@@ -5,9 +5,10 @@ import { File } from "src/types/file";
 
 interface SidebarProps {
   onNavigationClick: (fileName: string) => void;
+  currentlyActiveFile: string;
 }
 
-export const Sidebar = ({ onNavigationClick }: SidebarProps) => {
+export const Sidebar = ({ onNavigationClick, currentlyActiveFile }: SidebarProps) => {
   const { data } = useFilesQuery();
 
   return (
@@ -23,24 +24,20 @@ export const Sidebar = ({ onNavigationClick }: SidebarProps) => {
               className="w-full flex items-center gap-x-1.5 group select-none cursor-pointer"
               onClick={() => onNavigationClick(file.name)}>
               <div className="w-1 rounded-xl h-8 bg-transparent transition-colors duration-200 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-[102%] translate-y-full group-hover:translate-y-0 bg-red-600 transition-all duration-300"></div>
+                <div
+                  className={`absolute top-0 left-0 w-full h-[102%] ${
+                    currentlyActiveFile === file.name ? "" : "translate-y-full"
+                  } group-hover:translate-y-0 bg-red-600 transition-all duration-300`}></div>
               </div>
-              <div className="group-hover:bg-white/10 w-full group-active:scale-95 self-stretch pl-2 rounded flex items-center space-x-2 transition-all duration-200 dark:group-hover:text-white dark:hover:text-white text-sm">
+              <div
+                className={`${
+                  currentlyActiveFile === file.name ? "bg-white/10 text-white" : ""
+                } group-hover:bg-white/10 w-full group-active:scale-95 self-stretch pl-2 rounded flex items-center space-x-2 transition-all duration-200 dark:group-hover:text-white dark:hover:text-white text-sm`}>
                 <Document width={24} />
                 <span className="font-QuicksandMedium">{file.name}</span>
               </div>
             </div>
           ))}
-
-          <div className="w-full flex items-center gap-x-1.5 group select-none">
-            <div className="w-1 rounded-xl h-8 bg-transparent transition-colors duration-200 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-[102%] group-hover:translate-y-0 translate-y-0 bg-red-600 transition-all duration-300"></div>
-            </div>
-            <div className="bg-white/10 text-white group-hover:bg-white/10 w-full group-active:scale-95 self-stretch pl-2 rounded flex items-center space-x-2 transition-all duration-200 dark:group-hover:text-white dark:hover:text-white text-sm">
-              <Folder width={24} />
-              <span className="font-QuicksandMedium">Home</span>
-            </div>
-          </div>
         </div>
       </aside>
       <div></div>

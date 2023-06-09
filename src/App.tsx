@@ -27,7 +27,7 @@ const App = () => {
 
   return (
     <div className="app-grid">
-      <Sidebar onNavigationClick={handleClick} />
+      <Sidebar onNavigationClick={handleClick} currentlyActiveFile={fileName} />
       <Markdown value={value} onChange={setValue} />
     </div>
   );
