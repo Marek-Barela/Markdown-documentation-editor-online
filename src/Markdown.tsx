@@ -8,30 +8,8 @@ interface MarkdownProps {
 }
 
 export const Markdown = ({ value, onChange }: MarkdownProps) => {
-  const [isLoading, setIsLoading] = useState(true);
-
   const handleChange = useCallback((value: string) => {
     onChange(value);
-  }, []);
-
-  useEffect(() => {
-    const handleLoad = () => {
-      const sideBySide = document.getElementsByClassName(
-        "side-by-side"
-      )[0] as HTMLButtonElement;
-
-      if (sideBySide) {
-        sideBySide.click();
-        sideBySide.style.display = "none";
-      }
-      setIsLoading(false);
-    };
-
-    window.addEventListener("load", handleLoad);
-
-    return () => {
-      window.removeEventListener("load", handleLoad);
-    };
   }, []);
 
   const options = useMemo(
@@ -53,14 +31,14 @@ export const Markdown = ({ value, onChange }: MarkdownProps) => {
         "fullscreen",
         "guide",
       ] as any[],
+      status: false,
     }),
     []
   );
 
   return (
     <>
-      <div style={{ display: isLoading ? "block" : "none" }}>Loading...</div>
-      <div style={{ display: isLoading ? "none" : "block" }}>
+      <div>
         <SimpleMdeReact options={options} value={value} onChange={handleChange} />
       </div>
     </>
