@@ -1,9 +1,16 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
-
+const { v4: uuidv4 } = require("uuid");
 const app = express();
 const directoryPath = "./files";
+const cors = require("cors");
+
+if (process.env.NODE_ENV === "development") {
+  app.use(cors());
+}
+
+app.use(express.static(path.join(__dirname, "dist")));
 
 app.get("/files", (_, res) => {
   fs.readdir(directoryPath, (err, files) => {
@@ -13,7 +20,12 @@ app.get("/files", (_, res) => {
       return;
     }
 
-    res.json(files);
+    const fileData = files.map(fileName => ({
+      id: uuidv4(),
+      name: fileName,
+    }));
+
+    res.json(fileData);
   });
 });
 
@@ -29,6 +41,10 @@ app.get("/files/:fileName", (req, res) => {
 
     res.send(content);
   });
+});
+
+app.get("*", (_, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
 const PORT = 3000 || process.env.PORT;
