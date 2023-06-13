@@ -85,7 +85,7 @@ export const Sidebar = ({
 
   return (
     <>
-      <aside className="w-[300px] bg-[#242424] min-h-full h-screen flex flex-col items-center pt-5 pb-2 space-y-7 fixed">
+      <aside className="w-[300px] bg-[#242424] min-h-full h-screen flex flex-col items-center pt-5 pb-2 space-y-7 fixed overflow-auto">
         <div className="w-full flex flex-col gap-y-1 text-gray-500 fill-gray-500 text-sm">
           <div className="font-QuicksandMedium m-3 mx-4 flex gap-2 justify-between">
             <button
